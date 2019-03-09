@@ -2,9 +2,9 @@ const config = require('./config/config');
 const fastify = require('fastify')({ logger: true });
 const helmet = require('fastify-helmet');
 const static = require('fastify-static');
+const routes = require('fastify-routes');
 const fileUpload = require('fastify-file-upload');
 const pointOfView = require('point-of-view');
-const Mustache = require('mustache');
 const glob = require('glob');
 const path = require('path');
 const _ = require('lodash');
@@ -23,7 +23,9 @@ fastify.register(pointOfView, {
   engine: {
     mustache: require('mustache')
   }
-})
+});
+
+fastify.register(routes);
 
 fastify.register(static, {
   root: path.join(__dirname, 'public'),
@@ -43,11 +45,22 @@ fastify.register(static, {
         reply.redirect('/docs');
       });
       fastify.get('/docs', (req, reply) => {
+        let endpoints = [];
+
+        fastify.routes.forEach(item => {
+          _.mapValues(item, endpoint => {
+            endpoints.push({
+              path: endpoint.url,
+              method: endpoint.method
+            });
+          });
+        });
+
         reply.view('/public/docs/docs.html', {
           app: {
-            title: 1
+            title: 'Probando templates en Fastify con Point of View y Mustache'
           },
-          endpoints: []
+          endpoints: endpoints
         })
       });
 
