@@ -1,15 +1,15 @@
 const TasksController = require('./tasks.controller');
 const middlewares = require('../../middlewares/middlewares');
 
-module.exports = server => {
-  server.get('/tasks', TasksController.list);
-  server.post('/tasks', { preValidation: middlewares.isValidDomain }, TasksController.create);
-  server.get('/tasks/:id', { preValidation: middlewares.isValidDomain }, TasksController.read);
-  server.put('/tasks/:id', { preValidation: middlewares.isValidDomain }, TasksController.update);
-  server.put('/tasks/:id/title', { preValidation: middlewares.isValidDomain }, TasksController.updateTitle);
-  server.put('/tasks/:id/completed', { preValidation: middlewares.isValidDomain }, TasksController.updateCompleted);
-  server.put('/tasks/:id/images', { preValidation: middlewares.isValidDomain }, TasksController.updateImages);
-  server.delete('/tasks/:id', { preValidation: middlewares.isValidDomain }, TasksController.delete);
+module.exports = fastify => {
+  fastify.get('/tasks', TasksController.list);
+  fastify.post('/tasks', { preValidation: middlewares.isValidDomain }, TasksController.create);
+  fastify.get('/tasks/:id', { preValidation: middlewares.isValidDomain }, TasksController.read);
+  fastify.put('/tasks/:id', { preValidation: middlewares.isValidDomain }, TasksController.update);
+  fastify.put('/tasks/:id/title', { preValidation: middlewares.isValidDomain }, TasksController.updateTitle);
+  fastify.put('/tasks/:id/completed', { preValidation: middlewares.isValidDomain }, TasksController.updateCompleted);
+  fastify.put('/tasks/:id/images', { preValidation: middlewares.isValidDomain }, TasksController.updateImages);
+  fastify.delete('/tasks/:id', { preValidation: middlewares.isValidDomain }, TasksController.delete);
 };
 
 

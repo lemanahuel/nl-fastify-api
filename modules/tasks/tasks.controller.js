@@ -5,11 +5,13 @@ const Sendgrid = require('../../integrations/sendgrid');
 const TaskModel = require('./tasks.model');
 
 module.exports = class Tasks {
-  static create(req, res) {
-    return TaskModel.create(req.body);
+  static create(req, reply) {
+    TaskModel.create(req.body).then(doc => {
+      reply.send(doc);
+    });
   }
 
-  static list(req, res) {
+  static list(req, reply) {
     let q = req.query;
     let findParams = { enable: true };
     let queryParams = {};
@@ -21,61 +23,87 @@ module.exports = class Tasks {
       findParams[_.replace(q.filter, '-', '')] = _.indexOf(q.filter, '-') > -1 ? false : true;
     }
     TaskModel.find(findParams, null, queryParams).lean().exec().then(docs => {
-      res.send(docs);
+      reply.send(docs);
     });
   }
 
-  static read(req, res) {
+  static read(req, reply) {
     TaskModel.findById(req.params.id).lean().exec().then(doc => {
-      res.send(doc);
+      reply.send(doc);
     });
   }
 
-  static async update(req, res) {
-    let oldTask = await TaskModel.findById(req.params.id).lean().exec();
-    let newTask = await TaskModel.findByIdAndUpdate(req.params.id, req.body, { new: true, safe: true }).lean().exec();
-    Sendgrid.send({
-      oldTask,
-      newTask,
-      action: 'tarea actualizada'
-    }).then(() => {
-      res.send(newTask);
+  static update(req, reply) {
+    let oldTask = null;
+    let newTask = null;
+
+    async.waterfall([wCb => {
+      TaskModel.findById(req.params.id).lean().exec((err, doc) => {
+        oldTask = doc;
+        wCb(null);
+      });
+    }, wCb => {
+      TaskModel.findByIdAndUpdate(req.params.id, req.body, { new: true, safe: true }).lean().exec((err, doc) => {
+        newTask = doc;
+        wCb(null);
+      });
+    }, wCb => {
+      Sendgrid.send({
+        oldTask,
+        newTask,
+        action: 'tarea actualizada'
+      }).then(() => {
+        wCb(null);
+      });
+    }], err => {
+      reply.send(newTask);
     });
   }
 
-  static updateTitle(req, res) {
+  static updateTitle(req, reply) {
     TaskModel.findByIdAndUpdate(req.params.id, {
       title: req.body.title
     }).lean().exec().then(doc => {
-      res.send(doc);
+      reply.send(doc);
     });
   }
 
-  static updateCompleted(req, res) {
+  static updateCompleted(req, reply) {
     TaskModel.findByIdAndUpdate(req.params.id, {
       completed: req.body.completed
     }).lean().exec().then(doc => {
-      res.send(doc);
+      reply.send(doc);
     });
   }
 
-  static async updateImages(req, res) {
-    let images = await Cloudy.uploadImages(req.files);
-    let oldTask = await TaskModel.findById(req.params.id).select('images').lean().exec();
-
-    TaskModel.findByIdAndUpdate(req.params.id, {
-      images: _.concat(oldTask.images || [], _.map(images, img => img.url))
-    }).lean().exec().then(doc => {
-      res.send(doc);
+  static updateImages(req, reply) {
+    let images = null;
+    let oldTask = null;
+    async.parallel([wCb => {
+      Cloudy.uploadImages(req.raw.files, (err, files) => {
+        images = files;
+        wCb(null);
+      });
+    }, wCb => {
+      TaskModel.findById(req.params.id).select('images').lean().exec((err, doc) => {
+        oldTask = doc;
+        wCb(null);
+      });
+    }], err => {
+      TaskModel.findByIdAndUpdate(req.params.id, {
+        images: _.concat(oldTask.images || [], _.map(images, img => img.url))
+      }).lean().exec().then(doc => {
+        reply.send(doc);
+      });
     });
   }
 
-  static delete(req, res) {
+  static delete(req, reply) {
     // return TaskModel.findByIdAndRemove(req.params.id).lean().exec();
     TaskModel.findByIdAndUpdate(req.params.id, {
       enable: false
     }).lean().exec().then(doc => {
-      res.send(doc);
+      reply.send(doc);
     });
   }
 };

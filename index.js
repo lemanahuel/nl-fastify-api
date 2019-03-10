@@ -3,6 +3,8 @@ const fastify = require('fastify')({ logger: true });
 const helmet = require('fastify-helmet');
 const static = require('fastify-static');
 const routes = require('fastify-routes');
+const formbody = require('fastify-formbody');
+const cors = require('fastify-cors');
 const fileUpload = require('fastify-file-upload');
 const pointOfView = require('point-of-view');
 const glob = require('glob');
@@ -14,19 +16,17 @@ const db = require('./integrations/mongodb');
 db.connect();
 
 fastify.register(helmet);
-
 fastify.register(fileUpload, {
   limits: { fileSize: 50 * 1024 * 1024 },
 });
-
 fastify.register(pointOfView, {
   engine: {
     mustache: require('mustache')
   }
 });
-
+fastify.register(formbody);
+fastify.register(cors);
 fastify.register(routes);
-
 fastify.register(static, {
   root: path.join(__dirname, 'public'),
   prefix: '/public/', // optional: default '/'
