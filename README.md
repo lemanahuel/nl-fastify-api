@@ -5,7 +5,7 @@ Desarrollaremos un CRUD completo con una API RestFul con NODE + FASTIFY para per
 
 👉 https://www.udemy.com/programa-hoy-en-mongodb-con-mongoose/
 
-### Otros de mis cursos:
+### Más cursos:
 
 ⭐ https://www.udemy.com/user/nahuellema/
 
