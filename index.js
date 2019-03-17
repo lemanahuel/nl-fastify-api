@@ -67,10 +67,10 @@ fastify.register(static, {
       fastify.listen(config.PORT, err => {
         if (err) {
           fastify.log.error(err);
-          process.exit(1);
+          // process.exit(1);
           return;
         }
-        fastify.log.info(`FASTIFY-API server started on ${fastify.server.address().port}`);
+        fastify.log.info(`FASTIFY-API server started on ${config.PORT}`);
       });
     });
   });
