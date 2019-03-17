@@ -3,7 +3,7 @@ const config = require('../config/config');
 
 module.exports = {
   isValidDomain: (req, res, done) => {
-    if (_.indexOf(config.DOMAINS_WHITE_LIST, req.headers.origin || req.headers.host) > -1) {
+    if (_.includes(config.DOMAINS_WHITE_LIST, req.headers.origin || req.headers.host)) {
       return done();
     }
     return res.send(404, {

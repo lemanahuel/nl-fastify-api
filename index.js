@@ -64,7 +64,7 @@ fastify.register(static, {
         })
       });
 
-      fastify.listen(config.PORT, err => {
+      fastify.listen(config.PORT, '0.0.0.0', err => {
         if (err) {
           fastify.log.error(err);
           // process.exit(1);
