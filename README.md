@@ -3,7 +3,7 @@ Desarrollaremos un CRUD completo con una API RestFul con NODE + FASTIFY para per
 
 ### Curso online en Udemy
 
-👉 https://www.udemy.com/programa-hoy-en-mongodb-con-mongoose/
+👉 https://www.udemy.com/fastify-node-mongodb-heroku-restful-api/
 
 ### Más cursos:
 
